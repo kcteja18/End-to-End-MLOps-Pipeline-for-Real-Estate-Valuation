@@ -1,10 +1,14 @@
-# Virtual Environment
-venv/
-.venv/
+# MLflow artifacts and logs
+mlruns/
+mlartifacts/
+mlflow.db
 
 # Python cache
 __pycache__/
 *.pyc
+
+# Virtual Environment
+venv/
 
 # Environment variables
 .env
