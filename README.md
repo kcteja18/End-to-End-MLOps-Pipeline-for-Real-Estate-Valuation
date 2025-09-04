@@ -62,8 +62,12 @@ python src/train.py
 ```bash
 uvicorn src.main:app --host 0.0.0.0 --port 8000
 ```
+4. Launch the Mlflow server:
+```bash
+mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root mlruns --host 127.0.0.1 -p 5000
+```
 
-4. Launch the Streamlit interface:
+5. Launch the Streamlit interface:
 ```bash
 streamlit run app.py
 ```
