@@ -1,50 +1,56 @@
+
 # name: CI/CD Pipeline
 
 # on:
 #   push:
 #     branches: [ "main", "master" ]
+#   pull_request:
+#     branches: [ "main", "master" ]
 
 # jobs:
-#   test-and-validate: # Renamed the first job for clarity
+#   test-and-build:
 #     runs-on: ubuntu-latest
 #     steps:
-#     - name: Checkout repository
-#       uses: actions/checkout@v4
+#     - uses: actions/checkout@v4
+    
 #     - name: Set up Python
 #       uses: actions/setup-python@v5
 #       with:
 #         python-version: '3.11'
+#         cache: 'pip'
+
 #     - name: Install dependencies
 #       run: |
 #         python -m pip install --upgrade pip
 #         pip install -r requirements.txt
-#     - name: Process data
-#       run: python src/process_data.py
-#     - name: Train model
-#       run: python src/train.py
 
-#   build-docker-image: # This is the new job that uses the Dockerfile
-#     # This job will only run if the 'test-and-validate' job succeeds
-#     needs: test-and-validate
-#     runs-on: ubuntu-latest
-#     steps:
-#     - name: Checkout repository
-#       uses: actions/checkout@v4
-      
-#     - name: Log in to Docker Hub
+#     - name: Process data and train model
+#       run: |
+#         python src/process_data.py
+#         python src/train.py
+
+#     - name: Run tests
+#       run: |
+#         pip install pytest pytest-cov
+#         pytest tests/ --cov=src --cov-report=xml
+
+#     - name: Set up Docker Buildx
+#       uses: docker/setup-buildx-action@v3
+
+#     - name: Login to Docker Hub
 #       uses: docker/login-action@v3
 #       with:
-#         username: #{{ secrets.DOCKERHUB_USERNAME }}
-#         password: #{{ secrets.DOCKERHUB_TOKEN }}
+#         username: {{ secrets.DOCKERHUB_USERNAME }}
+#         password: {{ secrets.DOCKERHUB_TOKEN }}
 
-#     - name: Build and push Docker image
+#     - name: Build and push
 #       uses: docker/build-push-action@v5
 #       with:
 #         context: .
 #         push: true
-#         tags: kcteja18/mlops-pipeline:latest
-
-
+#         tags: |
+#           {{ secrets.DOCKERHUB_USERNAME }}/mlops-pipeline:latest
+#           {{ secrets.DOCKERHUB_USERNAME }}/mlops-pipeline:{{ github.sha }}
 
 name: CI/CD Pipeline
 
@@ -70,16 +76,30 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install bandit safety pytest-cov
 
     - name: Process data and train model
       run: |
         python src/process_data.py
         python src/train.py
 
-    - name: Run tests
+    - name: Run tests and coverage
       run: |
-        pip install pytest pytest-cov
         pytest tests/ --cov=src --cov-report=xml
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: true
+
+    - name: Security scan with Bandit
+      run: |
+        bandit -r src/ -f json -o bandit-report.json
+
+    - name: Check dependencies for known vulnerabilities
+      run: |
+        safety check
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -98,3 +118,21 @@ jobs:
         tags: |
           ${{ secrets.DOCKERHUB_USERNAME }}/mlops-pipeline:latest
           ${{ secrets.DOCKERHUB_USERNAME }}/mlops-pipeline:${{ github.sha }}
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/mlops-pipeline:latest
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Health check
+      uses: jtalk/url-health-check-action@v3
+      with:
+        url: http://localhost:8000/health
+        max-attempts: 3
+        retry-delay: 5s
+        retry-all: true

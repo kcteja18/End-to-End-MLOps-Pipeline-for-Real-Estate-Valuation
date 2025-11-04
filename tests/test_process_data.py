@@ -1,15 +1,22 @@
 import os
-import pytest
+import pytest # type: ignore
 import pandas as pd
 import numpy as np
 from src.process_data import prepare_data
 
+# @pytest.fixture(scope="module")
+# def processed_data():
+#     """Fixture to prepare data once for all tests"""
+#     prepare_data()
+#     train_df = pd.read_csv(os.path.join("data", "processed", "train.csv"))
+#     test_df = pd.read_csv(os.path.join("data", "processed", "test.csv"))
+#     return train_df, test_df
 @pytest.fixture(scope="module")
 def processed_data():
     """Fixture to prepare data once for all tests"""
     prepare_data()
-    train_df = pd.read_csv(os.path.join("data", "processed", "train.csv"))
-    test_df = pd.read_csv(os.path.join("data", "processed", "test.csv"))
+    train_df = pd.read_csv(os.path.join("data", "processed", "train_unscaled.csv"))
+    test_df = pd.read_csv(os.path.join("data", "processed", "test_unscaled.csv"))
     return train_df, test_df
 
 def test_file_creation():
@@ -50,16 +57,25 @@ def test_data_splits(processed_data):
     """Test the train-test split properties"""
     train_df, test_df = processed_data
     
-    # Check split sizes (assuming 80-20 split)
+    # Check split sizes (80-20 split)
     total_rows = len(train_df) + len(test_df)
     assert abs(len(train_df)/total_rows - 0.8) < 0.01, "Unexpected train split size"
     assert abs(len(test_df)/total_rows - 0.2) < 0.01, "Unexpected test split size"
 
+# def test_value_ranges(processed_data):
+#     """Test if values are within expected ranges"""
+#     train_df, test_df = processed_data
+    
+#     # Test value ranges
+#     assert train_df['MedInc'].min() >= 0, "Negative median income found"
+#     assert train_df['HouseAge'].min() >= 0, "Negative house age found"
+#     assert all(32.0 <= train_df['Latitude']) and all(train_df['Latitude'] <= 42.0), "Latitude out of range"
+#     assert all(-124.0 <= train_df['Longitude']) and all(train_df['Longitude'] <= -114.0), "Longitude out of range"
 def test_value_ranges(processed_data):
     """Test if values are within expected ranges"""
     train_df, test_df = processed_data
     
-    # Test value ranges
+    # Test value ranges on unscaled data
     assert train_df['MedInc'].min() >= 0, "Negative median income found"
     assert train_df['HouseAge'].min() >= 0, "Negative house age found"
     assert all(32.0 <= train_df['Latitude']) and all(train_df['Latitude'] <= 42.0), "Latitude out of range"

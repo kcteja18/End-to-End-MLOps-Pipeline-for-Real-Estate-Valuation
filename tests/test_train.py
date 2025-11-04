@@ -1,6 +1,6 @@
 import os
-import pytest
-import mlflow
+import pytest # type: ignore
+import mlflow # type: ignore
 import numpy as np
 from unittest.mock import patch, MagicMock
 from src.train import train_model
