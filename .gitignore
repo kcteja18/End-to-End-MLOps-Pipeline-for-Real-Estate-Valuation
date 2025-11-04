@@ -3,12 +3,52 @@ mlruns/
 mlartifacts/
 mlflow.db
 
-# Python cache
+# Environment variables
+.env
+
+# Python
 __pycache__/
 *.pyc
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Virtual Environment
 venv/
+ENV/
 
-# Environment variables
-.env
+# IDE
+.vscode/
+.idea/
+
+# Data
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Models
+models/*
+!models/.gitkeep
+
+# Logs
+*.log
+
+artifacts/
+.coverage
+coverage.xml

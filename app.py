@@ -11,7 +11,6 @@ st.write(
 
 # --- Sidebar for User Inputs ---
 st.sidebar.header("Input Housing Features")
-
 def user_input_features():
     """Creates sidebar widgets and returns a dictionary of features."""
     med_inc = st.sidebar.slider("Median Income (in tens of thousands)", 2.0, 15.0, 8.3)
