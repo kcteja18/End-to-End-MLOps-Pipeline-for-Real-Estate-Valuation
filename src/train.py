@@ -31,7 +31,7 @@ def train_model():
             'max_depth': [10, 20, 30, 40, 50, None],
             'min_samples_split': [2, 5, 10],
             'min_samples_leaf': [1, 2, 4],
-            'max_features': ['auto', 'sqrt'],
+            "max_features": ["sqrt", "log2", None],
             'bootstrap': [True, False]
         }
 
@@ -88,6 +88,7 @@ def train_model():
         mlflow.log_metric("test_rmse", rmse)
         mlflow.log_metric("test_mae", mae)
         mlflow.log_metric("test_r2", r2)
+        mlflow.log_metric("cv_mean_r2", cv_scores.mean())
         
         # Log feature importances
         feature_importance = pd.DataFrame({

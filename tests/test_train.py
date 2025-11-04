@@ -85,10 +85,14 @@ def test_individual_metrics(metric):
     mlflow.set_tracking_uri("sqlite:///mlflow.db")
     runs = mlflow.search_runs(experiment_ids=['0'])
     latest_run = runs.iloc[0]
-    
-    assert metric in latest_run.keys(), f"Metric {metric} not found"
-    assert not np.isnan(latest_run[metric]), f"Metric {metric} is NaN"
-    assert latest_run[metric] is not None, f"Metric {metric} is None"
+    assert 'metrics.test_rmse' in latest_run.keys()
+    assert 'metrics.test_mae' in latest_run.keys()
+    assert 'metrics.test_r2' in latest_run.keys()
+    assert 'metrics.cv_mean_r2' in latest_run.keys()
+    metric_key = f"metrics.{metric}"
+    assert metric_key in latest_run.keys(), f"Metric {metric} not found"
+    assert not np.isnan(latest_run[metric_key]), f"Metric {metric} is NaN"
+    assert latest_run[metric_key] is not None, f"Metric {metric} is None"
 
 if __name__ == "__main__":
     pytest.main([__file__, '-v'])
