@@ -123,10 +123,23 @@ def mock_data():
     """Fixture to mock training data"""
     with patch('pandas.read_csv') as mock_read:
         # Create mock training and test data
-        mock_data = MagicMock()
-        mock_data.drop.return_value = np.random.rand(100, 8)
-        mock_data['MedHouseVal'] = np.random.rand(100)
-        mock_read.return_value = mock_data
+        # mock_data = MagicMock()
+        # mock_data.drop.return_value = np.random.rand(100, 8)
+        # mock_data['MedHouseVal'] = np.random.rand(100)
+        # mock_read.return_value = mock_data
+        # yield mock_read
+        mock_df = pd.DataFrame({
+            'MedInc': np.random.rand(100),
+            'HouseAge': np.random.rand(100),
+            'AveRooms': np.random.rand(100),
+            'AveBedrms': np.random.rand(100),
+            'Population': np.random.rand(100),
+            'AveOccup': np.random.rand(100),
+            'Latitude': np.random.rand(100),
+            'Longitude': np.random.rand(100),
+            'MedHouseVal': np.random.rand(100)
+        })
+        mock_read.return_value = mock_df
         yield mock_read
 
 def test_model_artifacts_creation():
