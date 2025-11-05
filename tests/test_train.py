@@ -105,6 +105,14 @@ import pandas as pd
 from unittest.mock import patch, MagicMock
 from src.train import train_model
 
+@pytest.fixture(autouse=True)
+def end_mlflow_run_after_test():
+    """Ensure any active MLflow run is terminated after each test."""
+    yield
+    # This code will run *after* each test
+    if mlflow.active_run():
+        mlflow.end_run()
+
 @pytest.fixture
 def mock_mlflow():
     """Fixture to mock MLflow operations"""
