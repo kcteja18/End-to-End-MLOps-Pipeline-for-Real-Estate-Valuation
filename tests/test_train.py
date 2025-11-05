@@ -101,6 +101,7 @@ import os
 import pytest # type: ignore
 import mlflow # type: ignore
 import numpy as np
+import pandas as pd
 from unittest.mock import patch, MagicMock
 from src.train import train_model
 
